@@ -1,25 +1,52 @@
-const chromium = require('playwright')
-const email = process.env["FB_EMAIL "]
-const password = process.env["FB_PASS "]
-const puppeteer = require('puppeteer-extra');
-const StealthPlugin = require('puppeteer-extra-plugin-stealth');
-puppeteer.use(StealthPlugin());
-require('dotenv').config()
+const { chromium } = require('playwright');
+require('dotenv').config();
 
-async function postListing(listing, images){
-    const browser = await chromium.launch({headless: false});
-    const page = await browser.newPage();
-    await page.goto("https://www.facebook.com/login");
+const email = process.env.FB_EMAIL;
+const password = process.env.FB_PASS;
 
-    await page.fill('#email',email )
-    await page.fill('#password', password)
+/**
+ * Automates the process of posting a listing on Facebook Marketplace.
+ * @param {Object} listing - The listing data (title, price, etc.)
+ * @param {Array} images - Array of uploaded image file objects
+ */
+async function postListing(listing, images) {
+    console.log('[Facebook] Launching browser...');
 
-    await Promise.all([
-        page.click('[name="login"]'),
-        page.waitForNavigation({ waitUntil: 'networkidle' })
-    ]);
+    const browser = await chromium.launch({
+        headless: false,  // Set to true later in production
+        args: ['--start-maximized'],
+    });
 
-    console.log("login successful")
+    const context = await browser.newContext();
+    const page = await context.newPage();
+
+    try {
+        console.log('[Facebook] Navigating to login...');
+        await page.goto('https://www.facebook.com/login', { waitUntil: 'networkidle' });
+
+        console.log('[Facebook] Entering credentials...');
+        await page.fill('#email', email);
+        await page.fill('#pass', password);
+
+       await Promise.all([
+            page.click('[name="login"]'),
+            page.waitForNavigation({ waitUntil: 'networkidle' }),
+        ]);
+
+        const url = page.url()
+        if (url.includes('login')){
+             throw new Error('Login failed: Check your Facebook credentials');
+         }
+
+        console.log('[Facebook] Login successful.');
+
+        // TODO: Navigate to marketplace, create listing, upload image
+    } catch (error) {
+        console.error('[Facebook] Error during login:', error.message);
+    } finally {
+        // Don't close the browser yet so you can visually inspect the result
+        await browser.close();
+    }
 }
 
-module.exports= {postListing}
+module.exports = { postListing };
