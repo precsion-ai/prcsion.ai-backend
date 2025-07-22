@@ -27,7 +27,8 @@ async function postListing(listing, images) {
         storageState: 'services/fb-auth.json',
     });
     const page = await context.newPage();
-    await page.goto('https://www.facebook.com/marketplace');
+    await page.goto('https://www.facebook.com');
+    page.pause()
 
 
     // try {
@@ -58,13 +59,34 @@ async function postListing(listing, images) {
     //     await browser.close();
     // }
     //
-    try{
-        await page.waitForNavigation("text = Marketplace", {timeout : 3000})
-        await page.click("text = Marketplace")
-    } catch(error){
-        console.error('[Facebook] Error during login:', error.message);
+    try {
+        // await page.waitForSelector('text=Marketplace', { timeout: 3000 });
+        await page.getByRole('link', { name: 'Marketplace' }).click()
+        console.log('[Facebook] Clicked Marketplace');
+    } catch (e1) {
+        console.error('[Facebook] Could not find Marketplace button:', e1.message);
     }
 
+    try {
+        // await page.waitForSelector('text=Create new listing', { timeout: 3000 });
+        await page.click('text=Create new listing');
+        console.log('[Facebook] Clicked Create new listing');
+    } catch (e2) {
+        console.error('[Facebook] Could not find Create new listing:', e2.message);
+    }
+
+    try {
+        // await page.waitForSelector('text=Item for sale', { timeout: 3000 });
+        await page.click('text=Item for sale');
+        console.log('[Facebook] Clicked Item for sale');
+    } catch (e3) {
+        console.error('[Facebook] Could not find Item for sale', e3.message);
+    }
+
+    //Adding photos
+    try{
+
+    }
 
 
 }
