@@ -31,34 +31,7 @@ async function postListing(listing, images) {
     page.pause()
 
 
-    // try {
-    //     console.log('[Facebook] Navigating to login...');
-    //     await page.goto('https://www.facebook.com/login', { waitUntil: 'networkidle' });
-    //
-    //     console.log('[Facebook] Entering credentials...');
-    //     await page.type('#email', email);
-    //     await page.type('#pass', password);
 
-    //    await Promise.all([
-    //         page.click('[name="login"]'),
-    //         page.waitForNavigation({ waitUntil: 'networkidle' }),
-    //     ]);
-    //
-    //     const url = page.url()
-    //     if (url.includes('login')){
-    //          throw new Error('Login failed: Check your Facebook credentials');
-    //      }
-    //
-    //     console.log('[Facebook] Login successful.');
-    //
-    //     // TODO: Navigate to marketplace, create listing, upload image
-    // } catch (error) {
-    //     console.error('[Facebook] Error during login:', error.message);
-    // } finally {
-    //     // Don't close the browser yet so you can visually inspect the result
-    //     await browser.close();
-    // }
-    //
     try {
         // await page.waitForSelector('text=Marketplace', { timeout: 3000 });
         await page.getByRole('link', { name: 'Marketplace' }).click()
@@ -85,8 +58,16 @@ async function postListing(listing, images) {
 
     //Adding photos
     try{
-
+        for (let i = 0; i < images.length; i++) {
+            let imagePaths =  images[i].path
+            await page.getByRole('button', { name: 'Add photos or drag and drop' }).click();
+            await page.waitForSelector('input[type="file"]');
+            await page.setInputFiles('input[type="file"]', imagePaths);
+        }
+    }catch(e4){
+        console.error('[Facebook] Could not upload pictures', e4.message);
     }
+
 
 
 }
