@@ -3,23 +3,24 @@ const router = express.Router();
 const facebook = require('../services/facebook');
 
 /**
- * Handles a POST request to upload a listing and forward it to Facebook.
+ * @route POST /post
+ * @desc Handles uploading a listing and posting to Facebook Marketplace
  */
 router.post('/', async (req, res) => {
     try {
-        console.log('[POST /post] Body:', req.body);
-        console.log('[POST /post] Files:', req.files);
+        console.log('[POST /post] Request Body:', req.body);
+        console.log('[POST /post] Uploaded Files:', req.files);
 
-        const fbResult = await facebook.postListing(req.body, req.files);
+        const result = await facebook.postListing(req.body, req.files);
 
-        res.json({
+        return res.status(200).json({
             success: true,
-            message: 'Listing sent to Facebook.',
-            result: fbResult
+            message: 'Listing successfully posted to Facebook.',
+            data: result
         });
     } catch (error) {
         console.error('[POST /post] Error:', error.message);
-        res.status(500).json({
+        return res.status(500).json({
             success: false,
             message: 'Failed to post listing to Facebook.',
             error: error.message
