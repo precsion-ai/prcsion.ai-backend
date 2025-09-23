@@ -1,0 +1,81 @@
+<!doctype html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <title>AI Resale Tailor</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link rel="stylesheet" href="popup.css" />
+</head>
+<body>
+<h1>AI Resale Tailor</h1>
+<p class="muted">Same UI — runs from your browser.</p>
+
+<!-- Predict Price -->
+<section class="card">
+    <h2>Predict Price</h2>
+    <div class="row">
+        <div>
+            <label>Title</label>
+            <input id="title" placeholder="e.g., GV Gallery zip-up hoodie" />
+        </div>
+        <div>
+            <label>Category</label>
+            <input id="category" placeholder="e.g., Men > Hoodies" />
+        </div>
+    </div>
+
+    <div class="mt">
+        <label>Description / Notes</label>
+        <textarea id="description" rows="3" placeholder="Condition, size, flaws, etc."></textarea>
+    </div>
+
+    <div class="mt">
+        <label class="muted">Images (optional)</label>
+        <input id="images" type="file" accept="image/*" multiple />
+        <div class="muted">Attach up to 4 photos; used to infer brand/color/materials.</div>
+    </div>
+
+    <div class="mt flex">
+        <button id="btnPredict">Predict Price <span id="spinP" class="sp hidden"></span></button>
+        <span id="statusP" class="muted"></span>
+    </div>
+
+    <div id="priceResult" class="mt"></div>
+    <div id="visionAttrs" class="muted mt hidden"></div>
+</section>
+
+<!-- Generate Description -->
+<section class="card">
+    <h2>Generate Description</h2>
+    <div class="row">
+        <div>
+            <label>Title</label>
+            <input id="dtitle" placeholder="e.g., Carhartt Detroit Jacket (L)" />
+        </div>
+        <div>
+            <label>Style</label>
+            <select id="dstyle">
+                <option value="friendly">friendly</option>
+                <option value="minimal">minimal</option>
+                <option value="streetwear">streetwear</option>
+                <option value="professional">professional</option>
+            </select>
+        </div>
+    </div>
+
+    <div class="mt">
+        <label>Original notes</label>
+        <textarea id="ddesc" rows="3" placeholder="Size, fit, condition, care, etc."></textarea>
+    </div>
+
+    <div class="mt flex">
+        <button id="btnDescribe">Generate <span id="spinD" class="sp hidden"></span></button>
+        <span id="statusD" class="muted"></span>
+    </div>
+
+    <div id="descResult" class="mt"></div>
+</section>
+
+<script src="popup.js"></script>
+</body>
+</html>

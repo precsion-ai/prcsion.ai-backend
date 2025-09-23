@@ -1,0 +1,242 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <title>AI Resale Tailor – MVP</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <style>
+        :root { --gap: 14px; }
+        body { font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial; margin: 24px; line-height: 1.4; color:#111; }
+        .card { border: 1px solid #e5e7eb; border-radius: 12px; padding: 18px; max-width: 880px; margin-bottom: 16px; }
+        .row { display: grid; grid-template-columns: 1fr 1fr; gap: var(--gap); }
+        label { font-size: 12px; color:#555; margin-bottom: 6px; }
+        input, textarea, select, button { width: 100%; padding: 10px 12px; border: 1px solid #d1d5db; border-radius: 8px; font-size: 14px; }
+        textarea { resize: vertical; }
+        button { background: #111; color:#fff; border: none; font-weight: 600; cursor: pointer; }
+        button[disabled] { opacity: 0.6; cursor: not-allowed; }
+        .muted { color:#6b7280; font-size: 12px; }
+        .pill { display: inline-block; padding: 4px 10px; border-radius: 999px; border: 1px solid #e5e7eb; margin-right: 6px; margin-top: 6px; font-size: 13px; }
+        .mono { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace; white-space: pre-wrap; }
+        .hidden { display:none; }
+        .sp { display:inline-block; width:12px; height:12px; border:2px solid #fff; border-top-color: transparent; border-radius:50%; margin-left:8px; animation: spin 0.8s linear infinite; }
+        @keyframes spin { to { transform: rotate(360deg); } }
+    </style>
+</head>
+<body>
+
+<h1>AI Resale Tailor</h1>
+<p class="muted">Predict price & generate listing copy. Same UI — now uses photos too.</p>
+
+<!-- Predict Price (same card + tiny images picker) -->
+<div class="card">
+    <h2 style="margin-top:0;">Predict Price</h2>
+    <div class="row">
+        <div>
+            <label for="title">Title</label>
+            <input id="title" placeholder="e.g., GV Gallery zip-up hoodie" />
+        </div>
+        <div>
+            <label for="category">Category</label>
+            <input id="category" placeholder="e.g., Men > Hoodies" />
+        </div>
+    </div>
+
+    <div style="margin-top: var(--gap);">
+        <label for="description">Description</label>
+        <textarea id="description" rows="3" placeholder="Condition, size, box/tags, flaws, etc."></textarea>
+    </div>
+
+    <div style="margin-top: var(--gap);">
+        <label for="images" class="muted">Images (optional)</label>
+        <input id="images" type="file" accept="image/*" multiple />
+        <div class="muted">Attach up to 4 photos. We’ll infer attributes and search sold comps.</div>
+    </div>
+
+    <div style="margin-top: var(--gap); display:flex; gap: var(--gap); align-items:center;">
+        <button id="btnPredict">
+            Predict Price
+            <span id="spinner" class="sp hidden"></span>
+        </button>
+        <span id="status" class="muted"></span>
+    </div>
+
+    <div id="priceResult" style="margin-top: var(--gap);"></div>
+    <div id="visionAttrs" class="muted hidden" style="margin-top: 8px;"></div>
+</div>
+
+<!-- Generate Description (unchanged UI, but auto-filled after Predict) -->
+<div class="card">
+    <h2 style="margin-top:0;">Generate Description</h2>
+    <div class="row">
+        <div>
+            <label for="dtitle">Title</label>
+            <input id="dtitle" placeholder="e.g., Carhartt Detroit Jacket (L)" />
+        </div>
+        <div>
+            <label for="dstyle">Style</label>
+            <select id="dstyle">
+                <option value="friendly">friendly</option>
+                <option value="minimal">minimal</option>
+                <option value="streetwear">streetwear</option>
+                <option value="professional">professional</option>
+            </select>
+        </div>
+    </div>
+    <div style="margin-top: var(--gap);">
+        <label for="ddesc">Original notes</label>
+        <textarea id="ddesc" rows="3" placeholder="Size, fit, condition, care, etc."></textarea>
+    </div>
+    <div style="margin-top: var(--gap); display:flex; gap: var(--gap);">
+        <button id="btnDescribe">Generate</button>
+        <span id="descStatus" class="muted"></span>
+    </div>
+    <div id="descResult" style="margin-top: var(--gap);"></div>
+</div>
+
+<script>
+    // point to your API (explicit to avoid file:// issues)
+    const API_BASE = 'http://localhost:5050';
+    const $ = (id) => document.getElementById(id);
+
+    function showLoadingPrice(on) {
+        const btn = $('btnPredict'); const spin = $('spinner'); const st = $('status');
+        if (on) { btn.disabled = true; spin.classList.remove('hidden'); st.textContent = 'Working…'; }
+        else { btn.disabled = false; spin.classList.add('hidden'); st.textContent = ''; }
+    }
+    function showLoadingDesc(on) {
+        const st = $('descStatus');
+        st.textContent = on ? 'Generating…' : '';
+    }
+
+    async function fetchWithTimeout(resource, options = {}) {
+        const { timeout = 35000 } = options;
+        const controller = new AbortController();
+        const id = setTimeout(() => controller.abort(), timeout);
+        try { return await fetch(resource, { ...options, signal: controller.signal }); }
+        finally { clearTimeout(id); }
+    }
+
+    // Predict Price: sends images+text, then ALSO generates the description using image-derived draft + notes
+    $('btnPredict').addEventListener('click', async () => {
+        const title = $('title').value.trim();
+        const description = $('description').value.trim();
+        const category = $('category').value.trim();
+        const files = $('images').files;
+
+        const priceOut = $('priceResult');
+        const attrsOut = $('visionAttrs');
+        const descOut = $('descResult');
+        const descNotes = $('ddesc'); // we'll also sync notes for user
+        const dTitle = $('dtitle');
+
+        priceOut.innerHTML = ''; attrsOut.classList.add('hidden'); attrsOut.innerHTML = '';
+        descOut.textContent = '';
+
+        const fd = new FormData();
+        [...files].slice(0,4).forEach(f => fd.append('images', f));
+        if (title) fd.append('title', title);
+        if (category) fd.append('category', category);
+        if (description) fd.append('description', description);
+
+        showLoadingPrice(true);
+        try {
+            // 1) price via images+text
+            const res = await fetchWithTimeout(`${API_BASE}/predict-price-from-images`, {
+                method: 'POST', body: fd, timeout: 50000
+            });
+            const json = await res.json().catch(() => ({}));
+            if (!res.ok || !json.success) throw new Error(json?.message || `Request failed (${res.status})`);
+
+            const { pricing, vision, usedCompsHint } = json.data || {};
+            if (!pricing) throw new Error('No pricing returned');
+
+            priceOut.innerHTML = `
+          <span class="pill"><strong>$${pricing.price}</strong> USD</span>
+          <span class="pill">Range: $${pricing.lower} – $${pricing.upper}</span>
+          <span class="pill">Confidence: ${(pricing.confidence*100).toFixed(0)}%</span>
+          ${usedCompsHint ? `<div class="muted" style="margin-top:8px;">search hint: ${usedCompsHint}</div>` : ''}
+        `;
+
+            // show inferred attributes (optional)
+            let seedDraft = description;
+            if (vision && vision.attributes) {
+                const a = vision.attributes;
+                const chips = [
+                    a.brand && `Brand: ${a.brand}`,
+                    a.category && `Category: ${a.category}`,
+                    a.subCategory && `Sub: ${a.subCategory}`,
+                    a.color && `Color: ${a.color}`,
+                    a.pattern && `Pattern: ${a.pattern}`,
+                    a.visibleCondition && `Cond: ${a.visibleCondition}`
+                ].filter(Boolean).map(t => `<span class="pill">${t}</span>`).join(' ');
+                const draft = vision.draftDescription ? `<div class="muted" style="margin-top:6px;">draft: ${vision.draftDescription}</div>` : '';
+                attrsOut.innerHTML = `${chips}${draft}`;
+                if (chips || draft) attrsOut.classList.remove('hidden');
+
+                // build seed for description: use image draft + user notes
+                if (vision.draftDescription) seedDraft = `${vision.draftDescription}${description ? ' ' + description : ''}`;
+            }
+
+            // sync title into desc card if user left it blank
+            if (!dTitle.value && title) dTitle.value = title;
+            // sync notes area with seed (so they can edit)
+            if (!descNotes.value && seedDraft) descNotes.value = seedDraft;
+
+            // 2) auto-generate final description using the seed
+            if (dTitle.value || descNotes.value) {
+                showLoadingDesc(true);
+                try {
+                    const style = $('dstyle').value;
+                    const resp = await fetchWithTimeout(`${API_BASE}/generate-description`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            title: dTitle.value || title,
+                            description: descNotes.value || seedDraft || description,
+                            style
+                        }),
+                        timeout: 25000
+                    });
+                    const data = await resp.json();
+                    if (!resp.ok || !data.success) throw new Error(data.message || 'Failed to generate description');
+                    descOut.textContent = data.data.description || '';
+                } catch (e) {
+                    descOut.innerHTML = `<div class="mono">Description error: ${e.message}</div>`;
+                } finally {
+                    showLoadingDesc(false);
+                }
+            }
+        } catch (e) {
+            priceOut.innerHTML = `<div class="mono">Error: ${e.message}</div>`;
+        } finally {
+            showLoadingPrice(false);
+        }
+    });
+
+    // Manual Generate (unchanged)
+    $('btnDescribe').addEventListener('click', async () => {
+        const title = $('dtitle').value.trim();
+        const description = $('ddesc').value.trim();
+        const style = $('dstyle').value;
+        const out = $('descResult');
+        const st = $('descStatus');
+        out.textContent = ''; st.textContent = 'Generating…';
+        try {
+            const res = await fetchWithTimeout(`${API_BASE}/generate-description`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ title, description, style }),
+                timeout: 25000
+            });
+            const data = await res.json();
+            if (!res.ok || !data.success) throw new Error(data.message || 'Error');
+            out.textContent = data.data.description;
+        } catch (e) {
+            out.innerHTML = `<div class="mono">Error: ${e.message}</div>`;
+        } finally {
+            st.textContent = '';
+        }
+    });
+</script>
+</body>
+</html>
