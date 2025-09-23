@@ -7,7 +7,7 @@ import dotenv from 'dotenv';
 dotenv.config();
 
 const client = new OpenAI({
-    apiKey: API KEY,
+    apiKey: "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\n",
     project: process.env.OPENAI_PROJECT_ID // needed if you use sk-proj- keys
 });
 
