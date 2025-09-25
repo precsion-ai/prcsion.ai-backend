@@ -41,3 +41,7 @@ build/
 
 # datasets / notebooks
 Clothes AI/
+Clothes AI/
+*.tsv
+*.zip
+*.7z
