@@ -4,8 +4,6 @@ out/
 !**/src/test/**/out/
 uploads/
 
-node_modules
-.env
 
 ### Eclipse ###
 .apt_generated
@@ -31,3 +29,15 @@ bin/
 
 ### Mac OS ###
 .DS_Store
+
+# node
+node_modules/
+dist/
+build/
+
+# env
+.env
+.env.local
+
+# datasets / notebooks
+Clothes AI/
