@@ -8,7 +8,7 @@ dotenv.config();
 
 const client = new OpenAI({
     apiKey: "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\n",
-    project: process.env.OPENAI_PROJECT_ID // needed if you use sk-proj- keys
+    project: process.env.OPENAI_PROJECT_ID
 });
 
 
@@ -17,7 +17,6 @@ const client = new OpenAI({
 
 
 // Keep numbers, roman numerals, dashes; strip noisy punctuation
-
 
 
 function toCompsHintFromVision(attrs) {
