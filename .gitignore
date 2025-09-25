@@ -45,3 +45,17 @@ Clothes AI/
 *.tsv
 *.zip
 *.7z
+node_modules/
+dist/
+build/
+.env
+.env.local
+Clothes AI/
+data/
+datasets/
+notebooks/
+*.tsv
+*.csv
+*.zip
+*.7z
+.DS_Store
