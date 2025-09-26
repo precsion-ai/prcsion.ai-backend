@@ -195,7 +195,7 @@ async function fetchCompsSummary(queryStr) {
 
 /* ------------------------------- Pricing API ------------------------------ */
 /** Pricing via Chat JSON mode + comps anchoring + brand guardrail */
-    // 1) Pull comps + compute numeric anchors
+    //Pull comps + compute numeric anchors
 export async function getPriceSuggestion({
                                                  title, description, category, brand, condition, size, material, visionAttrs
                                              }) {
@@ -212,7 +212,7 @@ export async function getPriceSuggestion({
         const compStats = stats(compPrices);
 
 
-        // 2) Build prompt with numeric anchors when available
+        // Build prompt with numeric anchors when available
     const sys =
         `You are a secondhand marketplace pricing engine.\n` +
         `Output ONLY valid JSON:\n` +
@@ -239,7 +239,7 @@ export async function getPriceSuggestion({
         `${compsBlock}\n\n` +
         `Output: ONLY the JSON object.`;
 
-    // 3) Chat JSON mode — freshness is provided by compsBlock
+    //  Chat JSON mode — freshness is provided by compsBlock
     const r = await client.chat.completions.create({
         model: "gpt-4o",
         temperature: 0,
@@ -272,7 +272,7 @@ export async function getPriceSuggestion({
         throw err;
     }
 
-    // 4) Normalize base output
+    //Normalize base output
     let price = clampUSD(json.price);
     let lower = clampUSD(json.lower ?? price - 10);
     let upper = clampUSD(json.upper ?? price + 15);
@@ -285,7 +285,7 @@ export async function getPriceSuggestion({
         const tooHigh = price > 1.4 * m;
 
         if (tooLow || tooHigh) {
-            // snap to median-centered band
+            //snap to median-centered band
             price = clampUSD(m);
             lower = clampUSD(Math.min(compStats.p25, m - Math.max(10, 0.2 * m)));
             upper = clampUSD(Math.max(compStats.p75, m + Math.max(15, 0.25 * m)));
@@ -302,7 +302,7 @@ export async function getPriceSuggestion({
             upper = clampUSD(Math.max(price + 10, price + 15));
         }
     } else {
-        // 6) No reliable comps — add a small brand/category prior (prevents $40 for high-heat streetwear)
+        //  No reliable comps — add a small brand/category prior (prevents $40 for high-heat streetwear)
         const txt = `${title} ${brand || ""}`.toLowerCase();
         const highHeatBrands = [
             "gv gallery", "gallery dept", "aimé leon dore", "aime leon dore",
