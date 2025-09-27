@@ -1,21 +1,27 @@
 {
-  "name": "reselling-tools",
-  "version": "1.0.0",
-  "main": "server/index.js",
+  "type": "module",
+  "main": "server/server.js",
   "scripts": {
-    "start": "node server/index.js"
+    "dev": "server/node_modules/.bin/nodemon server.js",
+    "start": "node server/server.js"
   },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
   "dependencies": {
-    "axios": "^1.11.0",
-    "dotenv": "^16.6.1",
-    "ebay-oauth-nodejs-client": "^1.2.2",
-    "express": "^4.18.2",
-    "multer": "^1.4.4",
-    "puppeteer": "^22.0.0",
-    "puppeteer-extra": "^3.3.6",
-    "puppeteer-extra-plugin-stealth": "^2.11.2"
+    "axios": "^1.12.1",
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.5",
+    "express": "^5.1.0",
+    "express-rate-limit": "^8.1.0",
+    "helmet": "^8.1.0",
+    "morgan": "^1.10.1",
+    "multer": "^2.0.2",
+    "openai": "^5.20.3",
+    "zod": "^3.23.8"
   },
   "devDependencies": {
-    "playwright": "^1.54.1"
-  }
+    "nodemon": "^3.1.10"
+  },
+  "description": ""
 }
