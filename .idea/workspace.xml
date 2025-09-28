@@ -4,9 +4,10 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="5f7f3989-c509-422a-bd61-e839e99e706a" name="Changes" comment="Commit and Push PRICYSE v0 (ran tests on chrome extension)">
+    <list default="true" id="5f7f3989-c509-422a-bd61-e839e99e706a" name="Changes" comment="Fixing package.json for Render">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/server/package.json" beforeDir="false" afterPath="$PROJECT_DIR$/server/package.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/package-lock.json" beforeDir="false" afterPath="$PROJECT_DIR$/package-lock.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/server/services/openaiService.js" beforeDir="false" afterPath="$PROJECT_DIR$/server/services/openaiService.js" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -51,9 +52,15 @@
     "node.js.selected.package.tslint": "(autodetect)",
     "nodejs_package_manager_path": "npm",
     "to.speed.mode.migration.done": "true",
+    "ts.external.directory.path": "/Applications/IntelliJ IDEA.app/Contents/plugins/javascript-plugin/jsLanguageServicesImpl/external",
     "vue.rearranger.settings.migration": "true"
   }
 }]]></component>
+  <component name="RecentsManager">
+    <key name="MoveFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$/" />
+    </key>
+  </component>
   <component name="SharedIndexes">
     <attachedChunks>
       <set>
@@ -69,7 +76,7 @@
       <option name="number" value="Default" />
       <option name="presentableId" value="Default" />
       <updated>1758843135516</updated>
-      <workItem from="1758843137195" duration="7543000" />
+      <workItem from="1758843137195" duration="12519000" />
     </task>
     <task id="LOCAL-00001" summary="Commit and Push PRICYSE v0 (ran tests on chrome extension)">
       <option name="closed" value="true" />
@@ -95,7 +102,23 @@
       <option name="project" value="LOCAL" />
       <updated>1758926546412</updated>
     </task>
-    <option name="localTasksCounter" value="4" />
+    <task id="LOCAL-00004" summary="Commit and Push PRICYSE v0 (ran tests on chrome extension)">
+      <option name="closed" value="true" />
+      <created>1758936469605</created>
+      <option name="number" value="00004" />
+      <option name="presentableId" value="LOCAL-00004" />
+      <option name="project" value="LOCAL" />
+      <updated>1758936469605</updated>
+    </task>
+    <task id="LOCAL-00005" summary="Fixing package.json for Render">
+      <option name="closed" value="true" />
+      <created>1758936757218</created>
+      <option name="number" value="00005" />
+      <option name="presentableId" value="LOCAL-00005" />
+      <option name="project" value="LOCAL" />
+      <updated>1758936757218</updated>
+    </task>
+    <option name="localTasksCounter" value="6" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -103,6 +126,7 @@
   </component>
   <component name="VcsManagerConfiguration">
     <MESSAGE value="Commit and Push PRICYSE v0 (ran tests on chrome extension)" />
-    <option name="LAST_COMMIT_MESSAGE" value="Commit and Push PRICYSE v0 (ran tests on chrome extension)" />
+    <MESSAGE value="Fixing package.json for Render" />
+    <option name="LAST_COMMIT_MESSAGE" value="Fixing package.json for Render" />
   </component>
 </project>

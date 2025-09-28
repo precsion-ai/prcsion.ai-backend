@@ -242,7 +242,7 @@ export async function getPriceSuggestion({
     //  Chat JSON mode — freshness is provided by compsBlock
     const r = await client.chat.completions.create({
         model: "gpt-4o",
-        temperature: 0,
+        temperature: 1,
         max_tokens: 220,
         response_format: { type: "json_object" },
         messages: [
@@ -340,8 +340,8 @@ Return only the description text.`;
 
     const r = await client.chat.completions.create({
         model: process.env.TEXT_MODEL || "gpt-4o",
-        temperature: 0.7,
-        max_tokens: 160,
+        temperature: 1,
+        max_completion_tokens: 160,
         messages: [
             { role: "system", content: sys },
             { role: "user", content: user }
@@ -397,8 +397,8 @@ Rules:
 
     const r = await client.chat.completions.create({
         model: process.env.VISION_MODEL || "gpt-4o",
-        temperature: 0,
-        max_tokens: 500,
+        temperature: 1,
+        max_completion_tokens: 500,
         response_format: { type: "json_object" },
         messages: [
             { role: "system", content: systemPrompt },
