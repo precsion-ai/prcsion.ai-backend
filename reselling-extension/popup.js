@@ -1,5 +1,5 @@
 // ====== CONFIG ======
-const API_BASE = "http://localhost:5050"; // change to your deployed URL later
+const API_BASE = "https://pricyse.onrender.com/*";
 // ====================
 
 const $ = (id) => document.getElementById(id);
@@ -10,6 +10,7 @@ function showLoad(el, on) {
     else spin.classList.add("hidden");
 }
 function setStatus(el, msg) { $(el).textContent = msg || ""; }
+
 
 async function fetchWithTimeout(resource, options = {}) {
     const { timeout = 35000 } = options;

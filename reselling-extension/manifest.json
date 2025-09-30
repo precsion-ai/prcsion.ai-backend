@@ -1,13 +1,9 @@
 {
   "manifest_version": 3,
-  "name": "AI Resale Tailor",
+  "name": "Pricyse",
   "version": "0.1.0",
-  "description": "Predict price and generate listing copy from title, notes, and photos.",
-  "action": { "default_popup": "popup.html", "default_title": "AI Resale Tailor" },
-  "icons": {
-    "16": "icons/icon16.png",
-    "48": "icons/icon48.png",
-    "128": "icons/icon128.png"
-  },
-  "permissions": []
+  "action": { "default_popup": "popup.html" },
+  "permissions": ["storage", "clipboardWrite"],
+  "host_permissions": ["https://pricyse.onrender.com/*"],
+  "icons": { "16": "icons/16.png", "32": "icons/32.png", "48": "icons/48.png", "128": "icons/128.png" }
 }
