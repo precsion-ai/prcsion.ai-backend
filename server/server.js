@@ -24,8 +24,7 @@ app.use(cors({
     credentials: false
 }));
 
-// Helpful for some browsers/proxies
-app.options("/*", cors());
+
 
 // ...after app.use(express.json(...))
 app.use("/predict-price-from-images", priceFromImagesRoute);
