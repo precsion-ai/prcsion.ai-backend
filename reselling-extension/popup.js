@@ -1,5 +1,5 @@
 // ====== CONFIG ======
-const API_BASE = "https://pricyse.onrender.com/*";
+const API_BASE = "https://pricyse.onrender.com";
 // ====================
 
 const $ = (id) => document.getElementById(id);
@@ -11,13 +11,15 @@ function showLoad(el, on) {
 }
 function setStatus(el, msg) { $(el).textContent = msg || ""; }
 
-
 async function fetchWithTimeout(resource, options = {}) {
     const { timeout = 35000 } = options;
     const controller = new AbortController();
     const id = setTimeout(() => controller.abort(), timeout);
-    try { return await fetch(resource, { ...options, signal: controller.signal }); }
-    finally { clearTimeout(id); }
+    try {
+        return await fetch(resource, { ...options, signal: controller.signal });
+    } finally {
+        clearTimeout(id);
+    }
 }
 
 // Predict Price (images + text), then auto-generate description
@@ -41,28 +43,29 @@ $("btnPredict").addEventListener("click", async () => {
     try {
         // multipart payload
         const fd = new FormData();
-        [...files].slice(0,4).forEach(f => fd.append("images", f));
+        [...files].slice(0, 4).forEach(f => fd.append("images", f)); // field name must be "images"
         if (title) fd.append("title", title);
         if (category) fd.append("category", category);
         if (description) fd.append("description", description);
 
-        // 1) price via /predict-price-from-images
-        const res = await fetchWithTimeout(`${API_BASE}/predict-price-from-images`, {
+        // ✅ v1 route
+        const res = await fetchWithTimeout(`${API_BASE}/v1/price`, {
             method: "POST",
             body: fd,
             timeout: 50000
         });
         const json = await res.json().catch(() => ({}));
-        if (!res.ok || !json.success) throw new Error(json?.message || `Request failed (${res.status})`);
+        if (!res.ok || json.success === false) throw new Error(json?.message || `Request failed (${res.status})`);
 
-        const { pricing, vision, usedCompsHint } = json.data || {};
+        const { pricing, vision, usedCompsHint, item_id } = json.data || {};
         if (!pricing) throw new Error("No pricing returned");
 
         priceOut.innerHTML = `
-      <span class="pill"><strong>$${pricing.price}</strong> USD</span>
-      <span class="pill">Range: $${pricing.lower} – $${pricing.upper}</span>
-      <span class="pill">Confidence: ${(pricing.confidence*100).toFixed(0)}%</span>
+      <span class="pill"><strong>$${Number(pricing.price ?? 0).toFixed(0)}</strong> USD</span>
+      <span class="pill">Range: $${pricing.lower ?? "?"} – $${pricing.upper ?? "?"}</span>
+      <span class="pill">Confidence: ${((Number(pricing.confidence) || 0) * 100).toFixed(0)}%</span>
       ${usedCompsHint ? `<div class="muted" style="margin-top:6px;">query: ${usedCompsHint}</div>` : ""}
+      ${item_id ? `<div class="muted" style="margin-top:2px;">item: ${item_id}</div>` : ""}
     `;
 
         // show inferred attrs (brand/color/materials/cond) if present
@@ -81,7 +84,7 @@ $("btnPredict").addEventListener("click", async () => {
             if (chips || draft) attrsOut.classList.remove("hidden");
         }
 
-        // 2) auto-generate final description (stick to user’s chosen style card)
+        // Auto-generate final description using v1 route
         const dtitle = $("dtitle");
         const ddesc  = $("ddesc");
         if (!dtitle.value && title) dtitle.value = title;
@@ -93,7 +96,7 @@ $("btnPredict").addEventListener("click", async () => {
         if (dtitle.value || ddesc.value) {
             showLoad("spinD", true);
             setStatus("statusD", "Generating…");
-            const r2 = await fetchWithTimeout(`${API_BASE}/generate-description`, {
+            const r2 = await fetchWithTimeout(`${API_BASE}/v1/describe`, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({
@@ -104,8 +107,8 @@ $("btnPredict").addEventListener("click", async () => {
                 timeout: 25000
             });
             const j2 = await r2.json();
-            if (!r2.ok || !j2.success) throw new Error(j2.message || "Failed to generate description");
-            descOut.textContent = j2.data.description || "";
+            if (!r2.ok || j2.success === false) throw new Error(j2.message || "Failed to generate description");
+            descOut.textContent = j2.data?.description || "";
         }
     } catch (e) {
         priceOut.innerHTML = `<div class="mono">Error: ${e.message}</div>`;
@@ -117,7 +120,7 @@ $("btnPredict").addEventListener("click", async () => {
     }
 });
 
-// Manual Generate (unchanged)
+// Manual Generate (unchanged, but v1 route)
 $("btnDescribe").addEventListener("click", async () => {
     const title = $("dtitle").value.trim();
     const description = $("ddesc").value.trim();
@@ -127,14 +130,14 @@ $("btnDescribe").addEventListener("click", async () => {
     setStatus("statusD", "Generating…");
     out.textContent = "";
     try {
-        const res = await fetchWithTimeout(`${API_BASE}/generate-description`, {
+        const res = await fetchWithTimeout(`${API_BASE}/v1/describe`, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ title, description, style }),
             timeout: 25000
         });
         const data = await res.json();
-        if (!res.ok || !data.success) throw new Error(data.message || "Error");
+        if (!res.ok || data.success === false) throw new Error(data.message || "Error");
         out.textContent = data.data.description;
     } catch (e) {
         out.innerHTML = `<div class="mono">Error: ${e.message}</div>`;
