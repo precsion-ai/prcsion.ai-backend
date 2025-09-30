@@ -25,7 +25,7 @@ app.use(cors({
 }));
 
 // Helpful for some browsers/proxies
-app.options("*", cors());
+app.options("/*", cors());
 
 // ...after app.use(express.json(...))
 app.use("/predict-price-from-images", priceFromImagesRoute);
@@ -33,7 +33,7 @@ app.use("/predict-price-from-images", priceFromImagesRoute);
 import cors from "cors";
 // dev: permissive
 app.use(cors({ origin: true }));
-// or stricter:
+
 // app.use(cors({ origin: [/^chrome-extension:\/\//, "http://localhost:5050"] }));
 const PORT = process.env.PORT || 5050;
 app.listen(PORT, () => console.log(`server running on :${PORT}`));
