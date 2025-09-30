@@ -4,7 +4,6 @@ dotenv.config();
 import app from "./app.js";
 
 import priceFromImagesRoute from "./routes/priceFromImages.js";
-import cors from "cors";
 
 const EXT_ID = process.env.EXT_ID || "gaefhcahhbkgmgnndfodaajlnaefhcpp";
 const allowlist = [

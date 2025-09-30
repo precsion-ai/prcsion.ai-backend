@@ -4,11 +4,7 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="5f7f3989-c509-422a-bd61-e839e99e706a" name="Changes" comment="Fixing package.json for Render">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/reselling-extension/manifest.json" beforeDir="false" afterPath="$PROJECT_DIR$/reselling-extension/manifest.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/server/server.js" beforeDir="false" afterPath="$PROJECT_DIR$/server/server.js" afterDir="false" />
-    </list>
+    <list default="true" id="5f7f3989-c509-422a-bd61-e839e99e706a" name="Changes" comment="Fixes for smooth Render deployment" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -76,7 +72,7 @@
       <option name="number" value="Default" />
       <option name="presentableId" value="Default" />
       <updated>1758843135516</updated>
-      <workItem from="1758843137195" duration="22259000" />
+      <workItem from="1758843137195" duration="22579000" />
     </task>
     <task id="LOCAL-00001" summary="Commit and Push PRICYSE v0 (ran tests on chrome extension)">
       <option name="closed" value="true" />
@@ -126,7 +122,15 @@
       <option name="project" value="LOCAL" />
       <updated>1759043481621</updated>
     </task>
-    <option name="localTasksCounter" value="7" />
+    <task id="LOCAL-00007" summary="Fixes for smooth Render deployment">
+      <option name="closed" value="true" />
+      <created>1759271123935</created>
+      <option name="number" value="00007" />
+      <option name="presentableId" value="LOCAL-00007" />
+      <option name="project" value="LOCAL" />
+      <updated>1759271123935</updated>
+    </task>
+    <option name="localTasksCounter" value="8" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -135,6 +139,7 @@
   <component name="VcsManagerConfiguration">
     <MESSAGE value="Commit and Push PRICYSE v0 (ran tests on chrome extension)" />
     <MESSAGE value="Fixing package.json for Render" />
-    <option name="LAST_COMMIT_MESSAGE" value="Fixing package.json for Render" />
+    <MESSAGE value="Fixes for smooth Render deployment" />
+    <option name="LAST_COMMIT_MESSAGE" value="Fixes for smooth Render deployment" />
   </component>
 </project>
