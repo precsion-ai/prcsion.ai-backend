@@ -55,10 +55,14 @@ const ALLOWLIST = new Set([
     ...EXT_IDS.map(id => `chrome-extension://${id}`)
 ]);
 
-if (CORS_MODE === "restricted") {
+// Dev-friendly: if no allowlist is provided, fall back to permissive CORS
+if (ALLOWLIST.size === DEFAULT_ALLOW.length) {
+    // No EXT_IDS / ORIGIN_ALLOWLIST set → allow all (dev mode)
+    app.use(cors());
+} else {
     app.use(cors({
         origin(origin, cb) {
-            // allow no-origin (curl/postman) and allowlisted origins
+            // allow requests with no origin (curl/postman) and allowlisted origins
             if (!origin || ALLOWLIST.has(origin)) return cb(null, true);
             return cb(new Error("Not allowed by CORS: " + origin));
         },
@@ -66,34 +70,24 @@ if (CORS_MODE === "restricted") {
         allowedHeaders: ["Content-Type", "x-api-key"],
         credentials: false
     }));
-} else {
-    // Permissive (best for dev/testing & multiple dev extension IDs)
-    app.use(cors());
 }
 
-// Security & logs
 app.use(helmet());
 app.use(morgan("dev"));
-
-// Basic rate limit (per IP)
 app.use(rateLimit({ windowMs: 60 * 1000, max: 60 }));
 
-// ---------- HEALTH ----------
+// ---------- Health ----------
 app.get("/healthz", (_req, res) => res.json({ ok: true }));
 
-// ---------- VERSIONED API (use these in your extension) ----------
-app.use("/v1/price", priceRoute);               // POST /v1/price (JSON or multipart with field "images")
-app.use("/v1/describe", descriptionRoute);      // POST /v1/describe
-app.use("/v1/vision", imageRoutes);             // POST /v1/vision (optional)
+// ---------- Versioned API (use these in your extension) ----------
+app.use("/v1/price",    priceFromImagesRoute); // POST /v1/price  (JSON or multipart; files field: "images")
+app.use("/v1/describe", descriptionRoute);     // POST /v1/describe
+app.use("/v1/vision",   imageRoutes);          // POST /v1/vision  (optional)
 
-
-
-
-// ---------- LEGACY ALIASES (keep during transition; remove later) ----------
-app.use("/predict-price", priceRoute);
+// ---------- Legacy aliases (remove when frontend migrates) ----------
 app.use("/predict-price-from-images", priceFromImagesRoute);
-app.use("/generate-description", descriptionRoute);
-app.use("/analyze-images", imageRoutes);
+app.use("/generate-description",      descriptionRoute);
+app.use("/analyze-images",            imageRoutes);
 
 // ---------- 404 ----------
 app.use((req, res, _next) => {
@@ -103,7 +97,7 @@ app.use((req, res, _next) => {
     });
 });
 
-// ---------- ERROR HANDLER ----------
+// ---------- Error handler ----------
 app.use((err, _req, res, _next) => {
     console.error(err);
     res.status(err.status || 500).json({
@@ -112,7 +106,7 @@ app.use((err, _req, res, _next) => {
     });
 });
 
-// ---------- START SERVER ----------
+// ---------- Start server ----------
 const PORT = process.env.PORT || 5050;
 app.listen(PORT, () => {
     console.log(`server running on :${PORT}`);
