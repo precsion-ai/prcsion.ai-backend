@@ -59,3 +59,6 @@ notebooks/
 *.zip
 *.7z
 .DS_Store
+
+# python
+.venv
