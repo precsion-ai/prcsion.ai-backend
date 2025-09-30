@@ -1,9 +1,9 @@
 {
   "type": "module",
-  "main": "server/server.js",
+  "main": "app.js",
   "scripts": {
-    "dev": "server/node_modules/.bin/nodemon server.js",
-    "start": "node server/server.js"
+    "start": "node app.js",
+    "dev": "nodemon app.js"
   },
   "keywords": [],
   "author": "",
