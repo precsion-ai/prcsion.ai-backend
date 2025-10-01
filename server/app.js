@@ -10,8 +10,6 @@ import rateLimit from "express-rate-limit";
 
 // === ROUTERS  ===
 // Unified price route that can handle JSON or multipart (images)
-import priceRoute from "./routes/price.js";
-// Old images-only price route (keep as legacy alias if you still use it)
 import priceFromImagesRoute from "./routes/priceFromImages.js";
 // Description route (POST "/")
 import descriptionRoute from "./routes/descriptionRoutes.js";
@@ -42,13 +40,13 @@ const ORIGIN_ALLOWLIST = (process.env.ORIGIN_ALLOWLIST || [
     "http://127.0.0.1:3000",
 
     // Backend itself (health checks, Render)
-    "https://pricyse.onrender.com"
+    "https://prcsion-ai-backend.onrender.com"
 ]
 )
     .split(",").map(s => s.trim()).filter(Boolean);
 
 // Always allow your production host
-const DEFAULT_ALLOW = ["https://pricyse.onrender.com"];
+const DEFAULT_ALLOW = ["https://prcsion-ai-backend.onrender.com"];
 const ALLOWLIST = new Set([
     ...DEFAULT_ALLOW,
     ...ORIGIN_ALLOWLIST,
@@ -79,15 +77,11 @@ app.use(rateLimit({ windowMs: 60 * 1000, max: 60 }));
 // ---------- Health ----------
 app.get("/healthz", (_req, res) => res.json({ ok: true }));
 
-// ---------- Versioned API (use these in your extension) ----------
+// ---------- Versioned API ----------
 app.use("/v1/price",    priceFromImagesRoute); // POST /v1/price  (JSON or multipart; files field: "images")
 app.use("/v1/describe", descriptionRoute);     // POST /v1/describe
 app.use("/v1/vision",   imageRoutes);          // POST /v1/vision  (optional)
 
-// ---------- Legacy aliases (remove when frontend migrates) ----------
-app.use("/predict-price-from-images", priceFromImagesRoute);
-app.use("/generate-description",      descriptionRoute);
-app.use("/analyze-images",            imageRoutes);
 
 // ---------- 404 ----------
 app.use((req, res, _next) => {
